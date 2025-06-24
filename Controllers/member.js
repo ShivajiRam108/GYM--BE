@@ -109,7 +109,6 @@ exports.registerMember = async (req, res) => {
         }
         
 
-
     }catch(err){
         res.status(500).json({error: "Internal server error"});
     }

@@ -51,36 +51,35 @@ const cookieOptions = {
 
 };
 
-
 exports.login = async (req, res) => {
   try {
     const { userName, password } = req.body;
-    const gym = await Gym.findOne({ userName }); // it will return the frist user in the database. it will not return all the users,
-    // the user in the database and the password will be checked. incase the user is not found, it will return null.
+    const gym = await Gym.findOne({ userName });
 
-    // console.log(userName,password);
+    if (gym && (await bcrypt.compare(password, gym.password))) {
+      const token = jwt.sign({ gym_id: gym._id }, process.env.JWT_SECRET_KEY);
 
-    if (gym && (await bcrypt.compare(password, gym.password))) {  
+      const cookieOptions = {
+        httpOnly: true,
+        secure: false, // Set to true with HTTPS
+        sameSite: "Lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      };
 
-        const token = jwt.sign({gym_id:gym._id},process.env.JWT_SECRET_KEY)
-        // console.log("jwtToken",token);// it will be return the jwt token
-        res.cookie("cookie_token", token, cookieOptions); // it will set the cookie in the browser
+      res.cookie("token", `Bearer ${token}`, cookieOptions);
 
       res.json({
         message: "Login successful",
-        success: "Yes",
-        // data: gym 
-        // this is a updated code
+        success: true,
         gym: gym,
-        token :token
+        token: token
       });
     } else {
       res.status(400).json({
         message: "Invalid credentials",
-        success: "False",
+        success: false,
       });
     }
-    //console.log(userName
   } catch (err) {
     res.status(500).json({
       message: "Internal server error",
@@ -88,6 +87,7 @@ exports.login = async (req, res) => {
     });
   }
 };
+
 
 
 exports.sendOtp = async (req, res) => {
