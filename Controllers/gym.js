@@ -6,11 +6,12 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
+
 exports.register = async (req, res) => {
   //console.log("Registering user...");
   try {
     const { userName, password, gymName, profilePic, email } = req.body;
-    console.log(userName, password, gymName, profilePic, email); // in this case i got object
+    // console.log(userName, password, gymName, profilePic, email); // in this case i got object
 
     const isExist = await Gym.findOne({ userName });
     if (isExist) {
@@ -19,7 +20,7 @@ exports.register = async (req, res) => {
       });
     } else {
       const hashedPassword = await bcrypt.hash(password, 10); // it will convarted into hash(it will like a$2b$10$XvOrUnXN9Il4nLEJX7iodeSg7vIj3FHCVbSVAgef/9pc8nozcx0Ly ) password
-      console.log(hashedPassword);
+      // console.log(hashedPassword);
 
       const newGym = new Gym({
         userName,
@@ -46,7 +47,7 @@ exports.register = async (req, res) => {
 
 const cookieOptions = {
     httpOnly: true,
-    secure: false, // Set to true if using HTTPS
+    secure: true, 
     sameSite : "Strict"
 
 };
@@ -54,18 +55,19 @@ const cookieOptions = {
 exports.login = async (req, res) => {
   try {
     const { userName, password } = req.body;
+    // console.log(req.body)
     const gym = await Gym.findOne({ userName });
-
+    // console.log(gym)
     if (gym && (await bcrypt.compare(password, gym.password))) {
       const token = jwt.sign({ gym_id: gym._id }, process.env.JWT_SECRET_KEY);
 
       const cookieOptions = {
         httpOnly: true,
-        secure: true, // Set to true with HTTPS
+        secure: true, 
         sameSite: "Lax",
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-
+      
       res.cookie("token", `Bearer ${token}`, cookieOptions);
 
       res.json({
