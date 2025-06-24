@@ -14,8 +14,9 @@ app.use(cors({
 app.use(cookieParser());
 app.use(express.json());
 
+
 // Connect to Database
-require("./DB/connection"); // ✅ Make sure the filename is 'connection.js'
+require("./DB/connection"); 
 
 // Import Routes
 const GymRoutes = require("./Routes/gym");

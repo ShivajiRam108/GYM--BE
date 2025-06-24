@@ -63,9 +63,9 @@ function addMonthsToDate(months, joiningDate) {
 
     return date;
 }
-// chatgpt
+
 function addMonthsToDate(months, joiningDate) {
-    const date = new Date(joiningDate); // Create a copy to avoid mutation
+    const date = new Date(joiningDate); 
     const day = date.getDate();
 
     date.setMonth(date.getMonth() + months);
