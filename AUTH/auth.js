@@ -9,12 +9,17 @@ const auth = async (req, res, next) => {
     //   return res.status(401).json({message: "Unauthorized: Token missing"})
     // }
     
-    const token = req.cookies.token || req.headers.Authorization?.split(" ")[1];
-    if(!token){
-      return res.status(401).json({ message: "Unauthorized: Token missing" });
-    }
+    // const token = req.cookies.token || req.headers.Authorization?.split(" ")[1];
+    // if(!token){
+    //   return res.status(401).json({ message: "Unauthorized: Token missing" });
+    // }
     
+    const authHeader = req.headers.authorization;
 
+if (!authHeader || !authHeader.startsWith("Bearer ")) {
+  return res.status(401).json({ message: "Unauthorized" });
+}
+const token = authHeader.split(" ")[1];
  
     // If you stored "Bearer <token>", remove "Bearer "
     // const actualToken = token.startsWith("Bearer ") ? token.split(" ")[1] : token;
