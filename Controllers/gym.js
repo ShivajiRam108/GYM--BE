@@ -60,9 +60,9 @@ exports.login = async (req, res) => {
         expiresIn: "7d",
       });
 
-     res.cookie("token", token, cookieOptions)
+    //  res.cookie("token",`Bearer ${token}` , cookieOptions)
 
-      console.log("Cookies received:", req.cookies);
+      console.log("Cookies received:", token);
       // res.cookie("token", `Bearer ${token}`, cookieOptions);
     
 
@@ -74,7 +74,9 @@ exports.login = async (req, res) => {
           userName: gym.userName,
           gymName: gym.gymName,
           profilePic: gym.profilePic,
-          email: gym.email
+          email: gym.email,
+          token : token 
+
         }
       });
     } else {

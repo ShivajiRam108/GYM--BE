@@ -3,14 +3,17 @@ const Gym = require("../MODELS/GYM");
 
 const auth = async (req, res, next) => {
   try {
-    const rawToken = req.cookies.token;
+    // const rawToken = req.cookies.token;
 
-      
-      if (!rawToken || !rawToken.startsWith("Bearer ")) {
-      return res.status(401).json({message: "Unauthorized: Token missing"})
+    //   if (!rawToken || !rawToken.startsWith("Bearer ")) {
+    //   return res.status(401).json({message: "Unauthorized: Token missing"})
+    // }
+    
+    const token = req.cookies.token || req.headers.Authorization?.split(" ")[1];
+    if(!token){
+      return res.status(401).json({ message: "Unauthorized: Token missing" });
     }
-    const token = rawToken.split(" ")[1]
-    // const token = req.headers
+    
 
  
     // If you stored "Bearer <token>", remove "Bearer "
