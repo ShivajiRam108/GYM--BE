@@ -6,7 +6,6 @@ const nodemailer = require("nodemailer");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 
-
 exports.register = async (req, res) => {
   //console.log("Registering user...");
   try {
@@ -46,35 +45,35 @@ exports.register = async (req, res) => {
 };
 
 const cookieOptions = {
-    httpOnly: true,
-    secure: true, 
-    sameSite : "Strict"
-
+  httpOnly: true,
+  secure: true,
+  sameSite: "Strict",
 };
-
 exports.login = async (req, res) => {
   try {
     const { userName, password } = req.body;
-    // console.log(req.body)
     const gym = await Gym.findOne({ userName });
-    // console.log(gym)
-    if (gym && (await bcrypt.compare(password, gym.password))) {
-      const token = jwt.sign({ gym_id: gym._id }, process.env.JWT_SECRET_KEY);
 
+    if (gym && (await bcrypt.compare(password, gym.password))) {
+      const token = jwt.sign({ gym_id: gym._id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "7d",
+      });
+
+      // Use secure only in production
       const cookieOptions = {
         httpOnly: true,
-        secure: true, 
-        sameSite: "Lax",
+        secure: false, // ✅ set to true **ONLY IN PRODUCTION WITH HTTPS**
+        sameSite: "Lax", // ✅ Lax works in dev; use "None" in production with HTTPS
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
-      
+
+      console.log("Cookies received:", req.cookies);
       res.cookie("token", `Bearer ${token}`, cookieOptions);
 
       res.json({
         message: "Login successful",
         success: true,
-        gym: gym,
-        token: token
+        gym,
       });
     } else {
       res.status(400).json({
@@ -89,8 +88,6 @@ exports.login = async (req, res) => {
     });
   }
 };
-
-
 
 exports.sendOtp = async (req, res) => {
   try {
@@ -140,7 +137,6 @@ exports.sendOtp = async (req, res) => {
         });
       }
     });
-
   } catch (err) {
     res.status(500).json({
       message: "Internal server error",
@@ -149,77 +145,70 @@ exports.sendOtp = async (req, res) => {
   }
 };
 
-
-
 exports.verifyOtp = async (req, res) => {
-    try{
-        
-        const {email,otp} = req.body;
-        const gym = await Gym.findOne({
-            email,
-            resetPasswordToken: otp,
-            resetPasswordExpires: { $gt: Date.now() }
-        })
+  try {
+    const { email, otp } = req.body;
+    const gym = await Gym.findOne({
+      email,
+      resetPasswordToken: otp,
+      resetPasswordExpires: { $gt: Date.now() },
+    });
 
-        if(!gym){
-            return res.status(400).json({
-                message: "Invalid OTP or OTP expired",
-                success: false,
-            })
-        }
-        else{
-            res.status(200).json({
-                message: "OTP verified successfully",
-                success: true,
-            })
-        }
-    }catch(err){
-        res.status(500).json({
-            message: "Internal server error",
-            error: err.message,
-        });
+    if (!gym) {
+      return res.status(400).json({
+        message: "Invalid OTP or OTP expired",
+        success: false,
+      });
+    } else {
+      res.status(200).json({
+        message: "OTP verified successfully",
+        success: true,
+      });
     }
-}
-
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
 
 exports.resetPassword = async (req, res) => {
-    try{
-         const {email,newPassword} = req.body;
-         const gym = await Gym.findOne({email})
+  try {
+    const { email, newPassword } = req.body;
+    const gym = await Gym.findOne({ email });
 
-         if (!gym){
-            return res.status(400).json({
-                message: "Some Technical Issue , please try again later",
-                success: false,
-            })
-         }
-         const hashedPassword = await bcrypt.hash(newPassword, 10);
-         gym.password = hashedPassword;
-         gym.resetPasswordToken = undefined; // old password is deleted. and new password is set
-         gym.resetPasswordExpires = undefined; //
-
-         await gym.save();
-            res.status(200).json({
-                message: "Password updated successfully",
-                success: true,
-            })
-    }catch(err){
-        res.status(500).json({
-            message: "Internal server error",
-            error: err.message,
-        });
+    if (!gym) {
+      return res.status(400).json({
+        message: "Some Technical Issue , please try again later",
+        success: false,
+      });
     }
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    gym.password = hashedPassword;
+    gym.resetPasswordToken = undefined; // old password is deleted. and new password is set
+    gym.resetPasswordExpires = undefined; //
 
-
-}
+    await gym.save();
+    res.status(200).json({
+      message: "Password updated successfully",
+      success: true,
+    });
+  } catch (err) {
+    res.status(500).json({
+      message: "Internal server error",
+      error: err.message,
+    });
+  }
+};
 
 // exports.checking = (req, res) => {
 //     console.log(req.gym);// it will return the user data
-    
+
 // };
 
 exports.logout = async (req, res) => {
-    req.clearCookie("cookie_token", cookieOptions).json({message:"Logout successfully"}); // it will clear the cookie from the browser
-}
-
-
+  req
+    .clearCookie("cookie_token", cookieOptions)
+    .json({ message: "Logout successfully" }); // it will clear the cookie from the browser
+};
