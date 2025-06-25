@@ -47,7 +47,8 @@ exports.register = async (req, res) => {
 const cookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "Strict",
+  sameSite: "None",
+  maxAge: 7 * 24 * 60 * 60 * 1000, 
 };
 exports.login = async (req, res) => {
   try {
@@ -59,16 +60,11 @@ exports.login = async (req, res) => {
         expiresIn: "7d",
       });
 
-      // Use secure only in production
-      const cookieOptions = {
-        httpOnly: true,
-        secure: true, // ✅ set to true **ONLY IN PRODUCTION WITH HTTPS**
-        sameSite: "None", // ✅ Lax works in dev; use "None" in production with HTTPS
-        maxAge: 7 * 24 * 60 * 60 * 1000,
-      };
+      res.cookie('token', token, cookieOptions)
 
       console.log("Cookies received:", req.cookies);
-      res.cookie("token", `Bearer ${token}`, cookieOptions);
+      // res.cookie("token", `Bearer ${token}`, cookieOptions);
+    
 
       res.json({
         message: "Login successful",
@@ -209,6 +205,6 @@ exports.resetPassword = async (req, res) => {
 
 exports.logout = async (req, res) => {
   req
-    .clearCookie("cookie_token", cookieOptions)
+    .clearCookie("token", cookieOptions)
     .json({ message: "Logout successfully" }); // it will clear the cookie from the browser
 };
