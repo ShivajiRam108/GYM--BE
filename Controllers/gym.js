@@ -48,7 +48,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: true,
   sameSite: "None",
-  maxAge: 7 * 24 * 60 * 60 * 1000, 
+  maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 exports.login = async (req, res) => {
   try {
@@ -60,7 +60,7 @@ exports.login = async (req, res) => {
         expiresIn: "7d",
       });
 
-      res.cookie('token', token, cookieOptions)
+     res.cookie("token", token, cookieOptions)
 
       console.log("Cookies received:", req.cookies);
       // res.cookie("token", `Bearer ${token}`, cookieOptions);
@@ -69,7 +69,13 @@ exports.login = async (req, res) => {
       res.json({
         message: "Login successful",
         success: true,
-        gym,
+        gym:{
+          _id: gym._id,
+          userName: gym.userName,
+          gymName: gym.gymName,
+          profilePic: gym.profilePic,
+          email: gym.email
+        }
       });
     } else {
       res.status(400).json({
