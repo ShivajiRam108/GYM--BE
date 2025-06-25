@@ -62,7 +62,7 @@ exports.login = async (req, res) => {
       // Use secure only in production
       const cookieOptions = {
         httpOnly: true,
-        secure: false, // ✅ set to true **ONLY IN PRODUCTION WITH HTTPS**
+        secure: true, // ✅ set to true **ONLY IN PRODUCTION WITH HTTPS**
         sameSite: "Lax", // ✅ Lax works in dev; use "None" in production with HTTPS
         maxAge: 7 * 24 * 60 * 60 * 1000,
       };
