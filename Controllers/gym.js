@@ -47,7 +47,7 @@ exports.register = async (req, res) => {
 const cookieOptions = {
   httpOnly: true,
   secure: true,
-  sameSite: "Strict",
+  sameSite: "None",
 };
 exports.login = async (req, res) => {
   try {
@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
 
       // Use secure only in production
       const cookieOptions = {
-        httpOnly: false,
+        httpOnly: true,
         
         secure: true, // ✅ set to true **ONLY IN PRODUCTION WITH HTTPS**
         sameSite: "None", // ✅ Lax works in dev; use "None" in production with HTTPS
