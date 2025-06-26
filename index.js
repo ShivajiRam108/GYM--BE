@@ -7,7 +7,9 @@ const PORT = process.env.PORT || 3002;
 
 // CORS Configuration
 app.use(cors({
-  origin: "http://localhost:5173",
+  // origin: "http://localhost:5173",
+  // origin : "https://gym-fe.vercel.app/",
+  origin : "gym-ms.netlify.app",
   withCredentials: true,
   credentials: true 
 }));
